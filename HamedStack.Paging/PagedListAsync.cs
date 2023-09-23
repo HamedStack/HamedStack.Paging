@@ -6,7 +6,6 @@ namespace HamedStack.Paging;
 /// Represents an asynchronous paged list of items created from an <see cref="IAsyncEnumerable{T}"/> source.
 /// </summary>
 /// <typeparam name="T">The type of elements in the list.</typeparam>
-[Serializable]
 public class PagedListAsync<T> : IPagedList<T>
 {
     /// <summary>
@@ -72,10 +71,10 @@ public class PagedListAsync<T> : IPagedList<T>
     public int PageCount { get; private set; }
 
     /// <inheritdoc />
-    public int PageNumber { get; private set; }
+    public int PageNumber { get; private init; }
 
     /// <inheritdoc />
-    public int PageSize { get; private set; }
+    public int PageSize { get; private init; }
 
     /// <inheritdoc />
     public int TotalCount { get; private set; }

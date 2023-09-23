@@ -4,7 +4,6 @@
 /// Represents a paged list of items that is created from a <see cref="IQueryable{T}"/> source.
 /// </summary>
 /// <typeparam name="T">The type of elements in the list.</typeparam>
-[Serializable]
 public class PagedList<T> : IPagedList<T>
 {
     /// <summary>
