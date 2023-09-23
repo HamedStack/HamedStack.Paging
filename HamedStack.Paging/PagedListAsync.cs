@@ -9,25 +9,44 @@ namespace HamedStack.Paging;
 [Serializable]
 public class PagedListAsync<T> : IPagedList<T>
 {
-    
     /// <summary>
-    /// Initializes a new instance of the <see cref="PagedListAsync{T}"/> class.
+    /// Private constructor to prevent direct instantiation of <see cref="PagedListAsync{T}"/>.
+    /// </summary>
+    private PagedListAsync()
+    {
+    }
+
+    /// <summary>
+    /// Asynchronously creates a new instance of the <see cref="PagedListAsync{T}"/> class.
     /// </summary>
     /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> source from which the asynchronous paged list is created.</param>
     /// <param name="pageNumber">The current page number (1-based index).</param>
     /// <param name="pageSize">The number of items to include on each page.</param>
+    /// <returns>A <see cref="Task{T}"/> representing the asynchronous operation that returns an instance of <see cref="PagedListAsync{T}"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <paramref name="source"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="pageNumber"/> or <paramref name="pageSize"/> is less than or equal to 0.</exception>
     /// <remarks>
-    /// This constructor initializes an asynchronous paged list from an <see cref="IAsyncEnumerable{T}"/> source. It calculates various properties of the paged list, such as the total number of items, the number of pages, and asynchronously loads the items on the current page.
+    /// This factory method asynchronously initializes an asynchronous paged list from an <see cref="IAsyncEnumerable{T}"/> source. It calculates various properties of the paged list, such as the total number of items, the number of pages, and asynchronously loads the items on the current page.
     /// </remarks>
-    public PagedListAsync(IAsyncEnumerable<T> source, int pageNumber, int pageSize)
+    public static async Task<IPagedList<T>> CreateAsync(IAsyncEnumerable<T> source, int pageNumber, int pageSize)
     {
-        PageNumber = pageNumber;
-        PageSize = pageSize;
-        LoadDataAsync(source).GetAwaiter().GetResult();
-    }
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
 
+        if (pageNumber <= 0 || pageSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number and page size must be greater than zero.");
+
+        var pagedList = new PagedListAsync<T>
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        
+        await pagedList.LoadDataAsync(source);
+
+        return pagedList;
+    }
+    
     /// <inheritdoc />
     public int FirstItemOnPage => (PageNumber - 1) * PageSize + 1;
 
@@ -53,10 +72,10 @@ public class PagedListAsync<T> : IPagedList<T>
     public int PageCount { get; private set; }
 
     /// <inheritdoc />
-    public int PageNumber { get; }
+    public int PageNumber { get; private set; }
 
     /// <inheritdoc />
-    public int PageSize { get; }
+    public int PageSize { get; private set; }
 
     /// <inheritdoc />
     public int TotalCount { get; private set; }

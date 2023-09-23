@@ -126,9 +126,9 @@ public static class PagingExtensions
     /// <param name="pageNumber">The page number to retrieve.</param>
     /// <param name="pageSize">The number of items per page.</param>
     /// <returns>An asynchronous paged list.</returns>
-    public static IPagedList<T> ToPagedListAsync<T>(this IAsyncEnumerable<T> source, int pageNumber, int pageSize)
+    public static Task<IPagedList<T>> ToPagedListAsync<T>(this IAsyncEnumerable<T> source, int pageNumber, int pageSize)
     {
-        return new PagedListAsync<T>(source, pageNumber, pageSize);
+        return PagedListAsync<T>.CreateAsync(source, pageNumber, pageSize);
     }
     /// <summary>
     /// Internal method to count the number of items in an asynchronous enumerable.
