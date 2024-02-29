@@ -1,5 +1,6 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable IdentifierTypo
 
 namespace HamedStack.Paging;
 

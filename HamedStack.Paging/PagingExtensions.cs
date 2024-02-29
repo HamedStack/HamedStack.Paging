@@ -1,5 +1,6 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedVariable
+// ReSharper disable IdentifierTypo
 
 namespace HamedStack.Paging;
 
@@ -57,11 +58,16 @@ public static class PagingExtensions
     /// <returns>A paged list of items.</returns>
     public static async IAsyncEnumerable<T> ToPagedAsync<T>(this IAsyncEnumerable<T> source, int pageIndex, int pageSize)
     {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+
+        var itemsToSkip = (pageIndex - 1) * pageSize;
         var skipped = 0;
         var taken = 0;
+
         await foreach (var item in source)
         {
-            if (skipped < (pageIndex - 1) * pageSize)
+            if (skipped < itemsToSkip)
             {
                 skipped++;
                 continue;
@@ -74,7 +80,7 @@ public static class PagingExtensions
             }
             else
             {
-                break;
+                yield break;
             }
         }
     }
@@ -128,8 +134,9 @@ public static class PagingExtensions
     /// <returns>An asynchronous paged list.</returns>
     public static Task<IPagedList<T>> ToPagedListAsync<T>(this IAsyncEnumerable<T> source, int pageNumber, int pageSize)
     {
-        return PagedListAsync<T>.CreateAsync(source, pageNumber, pageSize);
+        return Task.FromResult(new PagedList<T>(source, pageNumber, pageSize) as IPagedList<T>);
     }
+
     /// <summary>
     /// Internal method to count the number of items in an asynchronous enumerable.
     /// </summary>
@@ -141,7 +148,7 @@ public static class PagingExtensions
         var count = 0;
         await foreach (var item in source)
         {
-            count++;
+            count += 1;
         }
         return count;
     }
@@ -158,7 +165,11 @@ public static class PagingExtensions
         var skipped = 0;
         await foreach (var item in source)
         {
-            if (skipped++ < count) continue;
+            if (skipped < count)
+            {
+                skipped += 1;
+                continue;
+            }
             yield return item;
         }
     }
@@ -175,8 +186,12 @@ public static class PagingExtensions
         var taken = 0;
         await foreach (var item in source)
         {
-            if (taken++ >= count) break;
+            if (taken >= count)
+            {
+                break;
+            }
             yield return item;
+            taken += 1;
         }
     }
 
@@ -196,4 +211,3 @@ public static class PagingExtensions
         return list;
     }
 }
-
